@@ -60,6 +60,14 @@ jobs:
           echo "Verification:"
           ls -l $ASSET_DIR
           
+      - name: Set Unix Executable Permissions
+        run: |
+          ASSET_DIR=${{ steps.config_download.outputs.ASSET_DIR }}
+          chmod +x $ASSET_DIR/interpreter-linux
+          chmod +x $ASSET_DIR/interpreter-macos
+          echo "Permissions set for Unix executables."
+          ls -l $ASSET_DIR # Re-check permissions
+
       # ------------------------------------------------------------------
       
       - name: Compile TypeScript
