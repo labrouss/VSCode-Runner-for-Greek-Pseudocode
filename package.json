@@ -28,9 +28,8 @@
   },
   "main": "./extension.js",
   "activationEvents": [
-    "onLanguage:pseudocode",
-    "onCommand:pseudocode.runInterpreter",
-    "onCommand:greekpseudocode.openManual"
+  "onLanguage:pseudocode",
+  "onStartupFinished" 
   ],
   "contributes": {
     "configuration": {

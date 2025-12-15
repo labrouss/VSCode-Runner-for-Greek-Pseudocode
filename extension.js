@@ -29,7 +29,7 @@ function activate(context) {
 
   // Register EAP runner
   const runEapCommand = vscode.commands.registerCommand(
-    "greekpseudocode.runEap",
+    "pseudocode.runInterpreter",
     function () {
       const editor = vscode.window.activeTextEditor;
 
