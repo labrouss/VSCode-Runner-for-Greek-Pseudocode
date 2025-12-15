@@ -52,7 +52,7 @@ jobs:
           curl -sSL -o $ASSET_DIR/interpreter-macos $BASE_URL/interpreter-macos
 
           echo "Downloading interpreter.exe..."
-          curl -sSL -o $ASSET_DIR/interpreter.exe $BASE_URL/interpreter.exe
+          curl -sSL -o $ASSET_DIR/interpreter-win.exe $BASE_URL/interpreter.exe
 
           echo "Downloading interpreter.py..."
           curl -sSL -o $ASSET_DIR/interpreter.py $BASE_URL/interpreter.py
