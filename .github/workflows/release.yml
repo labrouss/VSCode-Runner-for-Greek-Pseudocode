@@ -35,8 +35,9 @@ jobs:
       - name: Create target directory and define base URL
         id: config_download
         run: |
-          echo "ASSET_DIR=src/bin" >> $GITHUB_OUTPUT 
-          mkdir -p src/bin
+          # 🛑 FIX APPLIED HERE: Set ASSET_DIR to 'interpreter' to match VSIX structure
+          echo "ASSET_DIR=interpreter" >> $GITHUB_OUTPUT 
+          mkdir -p interpreter
           # Define the base URL for downloads
           echo "BASE_URL=https://github.com/labrouss/Python-Greek-Pseudocode-Interpreter/releases/latest/download" >> $GITHUB_OUTPUT
 
@@ -61,12 +62,13 @@ jobs:
           ls -l $ASSET_DIR
           
       - name: Set Unix Executable Permissions
-        run: |
-          ASSET_DIR=${{ steps.config_download.outputs.ASSET_DIR }}
-          chmod +x $ASSET_DIR/interpreter-linux
-          chmod +x $ASSET_DIR/interpreter-macos
-          echo "Permissions set for Unix executables."
-          ls -l $ASSET_DIR # Re-check permissions
+        run: |
+          ASSET_DIR=${{ steps.config_download.outputs.ASSET_DIR }}
+          # Ensure execution rights are set, preventing vsce from skipping the file
+          chmod +x $ASSET_DIR/interpreter-linux
+          chmod +x $ASSET_DIR/interpreter-macos
+          echo "Permissions set for Unix executables."
+          ls -l $ASSET_DIR # Re-check permissions
 
       # ------------------------------------------------------------------
       
@@ -76,7 +78,7 @@ jobs:
       - name: Install vsce
         run: npm install -g @vscode/vsce
         
-      - name: Package extension (Now includes downloaded assets in src/bin)
+      - name: Package extension (Now includes downloaded assets in 'interpreter')
         run: vsce package --allow-missing-repository
         
       - name: Upload VSIX artifact
