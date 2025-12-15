@@ -1,0 +1,136 @@
+{
+  "name": "greekpseudocode",
+  "displayName": "Greek Pseudocode",
+  "publisher": "GreekPseudoCode",
+  "version": "1.8.4",
+  
+  "engines": {
+    "vscode": "^1.95.0"
+  },
+  "description": "Highlight the Pseudocode in Greek",
+  "categories": [
+    "Formatters"
+  ],
+  "icon": "icon/icon.png",
+  "keywords": [
+    "theme",
+    "Formatters",
+    "dark theme",
+    "pseudocode",
+    "pseudoglossa",
+    "pseudwglwssa",
+    "eap",
+    "pseudo"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/AchilleasMakris/vscode-pseudocode-extension"
+  },
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+    "title": "Pseudocode Interpreter Settings",
+    "properties": {
+        "pseudocode.interpreterPath": {
+            "type": "string",
+            "default": "interpreter.exe",
+            "description": "Absolute path or command name of the Python pseudocode interpreter executable (e.g., 'C:\\path\\to\\interpreter.exe' or 'python /path/to/script.py')."
+          }
+      }  
+   },
+    "languages": [
+      {
+        "id": "pseudocode",
+        "aliases": ["Pseudocode", "pseudocode"],
+        "extensions": [".eap"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "pseudocode",
+        "scopeName": "source.greek-pseudocode",
+        "path": "./syntaxes/pseudocode.tmLanguage.json"
+      }
+    ],
+    "configurationDefaults": {
+      "[pseudocode]": {
+        "files.encoding": "windows1253"
+      }
+    },
+    "snippets": [
+      {
+        "language": "pseudocode",
+        "path": "./snippets.json"
+      }
+    ],
+    "tokenColors": [
+      {
+        "scope": "source.greek-pseudocode keyword.control.pseudocode",
+        "settings": {
+          "foreground": "#569CD6"
+        }
+      },
+      {
+        "scope": "source.greek-pseudocode keyword.type.pseudocode",
+        "settings": {
+          "foreground": "#DA0CB7"
+        }
+      },
+      {
+        "scope": "source.greek-pseudocode keyword.alg.pseudocode",
+        "settings": {
+          "foreground": "#2B95AFCF"
+        }
+      },
+      {
+        "scope": "source.greek-pseudocode keyword.data.pseudocode",
+        "settings": {
+          "foreground": "#C586C0"
+        }
+      },
+      {
+        "scope": "source.greek-pseudocode string.quoted.double.pseudocode",
+        "settings": {
+          "foreground": "#CE9178"
+        }
+      },
+      {
+        "scope": "source.greek-pseudocode comment.block.pseudocode",
+        "settings": {
+          "foreground": "#6A9955"
+        }
+      }
+    ],
+    "commands": [
+      {
+        "command": "pseudocode.runInterpreter",
+        "title": "Pseudocode: Run with External Interpreter"
+      },
+      {
+        "command": "greekpseudocode.openManual",
+        "title": "Open Pseudocode Manual"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "greekpseudocode.openManual",
+          "when": "true"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "greekpseudocode.runEap",
+          "when": "resourceExtname == .eap",
+          "group": "navigation"
+        },
+        {
+          "command": "greekpseudocode.openManual",
+          "when": "resourceExtname == .eap",
+          "group": "navigation"
+        }
+      ]
+    }
+  }
+}
