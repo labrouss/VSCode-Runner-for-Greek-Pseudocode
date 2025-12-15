@@ -1,13 +1,16 @@
-// src/extension.ts
-
-import * as vscode from 'vscode';
-import { runPseudocode } from './runner';
+import * as vscode from "vscode";
+import { registerAutocomplete } from "./autocomplete";
+import { runEapProgram } from "./runEap";
 
 export function activate(context: vscode.ExtensionContext) {
-    // Register the command and pass the extension's path to the runner function
-    let disposable = vscode.commands.registerCommand('pseudocode.runInterpreter', () => {
-        runPseudocode(context.extensionPath);
-    });
+  registerAutocomplete(context);
 
-    context.subscriptions.push(disposable);
+  context.subscriptions.push(
+    vscode.commands.registerCommand("eap.run", () =>
+      runEapProgram(context)
+    )
+  );
 }
+
+export function deactivate() {}
+

@@ -1,0 +1,32 @@
+{
+  "scopeName": "source.eap",
+  "patterns": [
+    {
+      "name": "keyword.control.eap",
+      "match": "\\b(ΑΛΓΟΡΙΘΜΟΣ|ΣΤΑΘΕΡΕΣ|ΔΕΔΟΜΕΝΑ|ΑΡΧΗ|ΤΕΛΟΣ|ΕΑΝ|ΤΟΤΕ|ΑΛΛΙΩΣ|ΕΑΝ-ΤΕΛΟΣ|ΓΙΑ|ΕΩΣ|ΜΕ|ΒΗΜΑ|ΕΠΑΝΑΛΑΒΕ|ΓΙΑ-ΤΕΛΟΣ|ΕΝΟΣΩ|ΕΝΟΣΩ-ΤΕΛΟΣ|ΜΕΧΡΙ|PRINT|READ|FUNCTION|PROCEDURE|BEGIN|END)\\b"
+    },
+    {
+      "name": "string.quoted.double.eap",
+      "begin": "\"",
+      "end": "\""
+    },
+    {
+      "name": "comment.line.eap",
+      "match": "//.*$"
+    },
+    {
+      "name": "comment.block.eap",
+      "begin": "/\\*",
+      "end": "\\*/"
+    },
+    {
+      "name": "constant.numeric.eap",
+      "match": "\\b\\d+(\\.\\d+)?\\b"
+    },
+    {
+      "name": "variable.other.eap",
+      "match": "\\b[A-Za-zΑ-Ωα-ω_][A-Za-zΑ-Ωα-ω0-9_]*\\b"
+    }
+  ]
+}
+

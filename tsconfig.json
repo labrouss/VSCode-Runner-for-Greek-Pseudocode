@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    /* Language and runtime */
+    "target": "ES2020",
+    "lib": ["ES2020"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+
+    /* Paths */
+    "rootDir": "src",
+    "outDir": "out",
+
+    /* Strictness */
+    "strict": true,
+    "noImplicitAny": true,
+
+    /* VS Code extension requirements */
+    "sourceMap": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+
+    /* Type checking */
+    "skipLibCheck": true
+  },
+
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", ".vscode-test"]
+}
+
