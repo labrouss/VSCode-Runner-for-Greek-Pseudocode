@@ -2,11 +2,11 @@ name: Build VSIX
 
 on:
   push:
-    branches: [ main, master ] 
+    branches: [ main, master ]
     tags:
       - 'v*'
   pull_request:
-    branches: [ main, master ] 
+    branches: [ main, master ]
   workflow_dispatch:
 
 permissions:
@@ -29,38 +29,33 @@ jobs:
       - name: Install dependencies
         run: npm ci
         
-      # --- NEW DOWNLOAD STEPS ---
-      - name: Set target directory
+      # ------------------------------------------------------------------
+      # INSERT ASSET DOWNLOAD STEPS HERE (Check indentation carefully!)
+      # ------------------------------------------------------------------
+      - name: Set target directory for executables
         id: config_download
         run: |
           echo "ASSET_DIR=src/bin" >> $GITHUB_OUTPUT 
           mkdir -p src/bin
           
-      - name: 📥 Download Assets from Interpreter Repo (Repo A)
+      - name: Download Interpreter Assets
         uses: robinraju/release-downloader@v1.9
         with:
           repository: 'labrouss/Python-Greek-Pseudocode-Interpreter' 
           tag: 'latest' 
-          # FIX: Check if 'destination' is the correct replacement for 'dest'
           destination: ${{ steps.config_download.outputs.ASSET_DIR }} 
-          # The GH_PAT_DOWNLOADER secret must have 'repo' scope and be valid.
           token: ${{ secrets.GH_PAT_DOWNLOADER }} 
           fileName: "interpreter-linux,interpreter-macos,interpreter.exe,interpreter.py" 
           latest: true
-          # The following inputs are defaults, but keeping them here for clarity is fine
-          # preRelease: false
-          # tarBall: false
-          # zipBall: false
-          # extract: false
-      # --- END NEW DOWNLOAD STEPS ---
-        
+      # ------------------------------------------------------------------
+      
       - name: Compile TypeScript
         run: npm run compile
         
       - name: Install vsce
         run: npm install -g @vscode/vsce
         
-      - name: Package extension (Now includes downloaded assets in src/bin)
+      - name: Package extension
         run: vsce package --allow-missing-repository
         
       - name: Upload VSIX artifact
@@ -77,41 +72,4 @@ jobs:
           files: '*.vsix'
           draft: false
           prerelease: false
-
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
-A
           generate_release_notes: true
