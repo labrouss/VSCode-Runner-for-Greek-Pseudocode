@@ -30,12 +30,13 @@ jobs:
         run: npm ci
         
       # ------------------------------------------------------------------
-      # INSERT ASSET DOWNLOAD STEPS HERE (Check indentation carefully!)
+      # INSERT ASSET DOWNLOAD STEPS
       # ------------------------------------------------------------------
       - name: Set target directory for executables
         id: config_download
         run: |
           echo "ASSET_DIR=src/bin" >> $GITHUB_OUTPUT 
+          # Create the directory where the assets will be placed
           mkdir -p src/bin
           
       - name: Download Interpreter Assets
@@ -43,10 +44,11 @@ jobs:
         with:
           repository: 'labrouss/Python-Greek-Pseudocode-Interpreter' 
           tag: 'latest' 
-          destination: ${{ steps.config_download.outputs.ASSET_DIR }} 
+          # FIX: Use 'out-file-path' instead of 'destination'
+          out-file-path: ${{ steps.config_download.outputs.ASSET_DIR }} 
+          # Ensure this token is valid and has 'repo' scope
           token: ${{ secrets.GH_PAT_DOWNLOADER }} 
           fileName: "interpreter-linux,interpreter-macos,interpreter.exe,interpreter.py" 
-          latest: true
       # ------------------------------------------------------------------
       
       - name: Compile TypeScript
@@ -73,3 +75,4 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
+
