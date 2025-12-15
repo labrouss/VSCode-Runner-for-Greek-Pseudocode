@@ -85,6 +85,19 @@ export function runEapProgram(context: vscode.ExtensionContext) {
   const terminal = vscode.window.createTerminal("EAP Runner");
   terminal.show();
 
-  // Execute the command, ensuring all paths and arguments are correctly quoted
-  terminal.sendText(`"${command}" ${args.map(a => `"${a}"`).join(" ")}`);
+  // Create the argument string, ensuring all arguments are quoted
+  const argString = args.map(a => `"${a}"`).join(" ");
+
+  let commandText: string;
+
+  if (platform === "win32") {
+      // Command path is NOT quoted, and use the '&' invocation operator.
+      // E.g., & C:\path\to\interpreter-win.exe "C:\path\to\file with spaces.eap"
+      commandText = `& ${command} ${argString}`; 
+  } else {
+      // For Linux/macOS, quote the command and arguments (standard Unix behavior).
+      commandText = `"${command}" ${argString}`;
+  }
+  
+  terminal.sendText(commandText);
 }
