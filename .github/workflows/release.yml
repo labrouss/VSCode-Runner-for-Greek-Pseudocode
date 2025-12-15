@@ -26,11 +26,27 @@ jobs:
     - name: Install dependencies
       run: npm ci
       
+    - name: Compile TypeScript
+      run: npm run compile
+      
+    - name: List compiled files (debug)
+      run: |
+        echo "Checking compiled output..."
+        ls -la
+        if [ -d "out" ]; then
+          echo "Contents of out directory:"
+          ls -la out/
+        fi
+        if [ -d "extension/out" ]; then
+          echo "Contents of extension/out directory:"
+          ls -la extension/out/
+        fi
+      
     - name: Install vsce
       run: npm install -g @vscode/vsce
       
     - name: Package extension
-      run: vsce package
+      run: vsce package --allow-missing-repository
       
     - name: Upload VSIX artifact
       uses: actions/upload-artifact@v4
