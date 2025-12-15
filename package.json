@@ -130,7 +130,14 @@
           "when": "resourceExtname == .eap",
           "group": "navigation"
         }
-      ]
+      ],
+       "editor/context": [
+        {
+            "command": "pseudocode.runInterpreter",
+            "group": "navigation@100",
+            "when": "resourceExtname == .psd || resourceExtName == .pseudocode"
+        }
+    ]
     }
   }
 }
