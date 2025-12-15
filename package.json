@@ -1,7 +1,7 @@
 {
-  "name": "eap-language",
-  "displayName": "EAP Pseudocode",
-  "description": "EAP pseudocode language support",
+  "name": "eap-greek-pseudocode-interpreter",
+  "displayName": "EAP Runner for Greek Pseudocode",
+  "description": "EAP Greek Pseudocode language support",
   "version": "0.1.0",
   "repository": {
     "type": "git",
