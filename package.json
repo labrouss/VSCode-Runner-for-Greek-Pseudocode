@@ -1,13 +1,13 @@
 {
-  "name": "greekpseudocode",
-  "displayName": "Greek Pseudocode",
-  "publisher": "GreekPseudoCode",
-  "version": "1.8.4",
+  "name": "VSCode-Runner-for-Greek-Pseudocode",
+  "displayName": "VSCode Runner for Greek Pseudocode",
+  "publisher": "VSCodeRunnerGreekPseudocode",
+  "version": "1.0.0",
   
   "engines": {
     "vscode": "^1.95.0"
   },
-  "description": "Highlight the Pseudocode in Greek",
+  "description": "Run the Pseudocode in Greek with an included interpreter",
   "categories": [
     "Formatters"
   ],
@@ -24,9 +24,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/AchilleasMakris/vscode-pseudocode-extension"
+    "url": "https://github.com/labrouss/vscode-pseudocode-extension"
   },
   "main": "./extension.js",
+  "activationEvents": [
+    "onLanguage:pseudocode",
+    "onCommand:pseudocode.runInterpreter",
+    "onCommand:greekpseudocode.openManual"
+  ],
   "contributes": {
     "configuration": {
     "title": "Pseudocode Interpreter Settings",
