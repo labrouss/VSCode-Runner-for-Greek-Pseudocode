@@ -1,69 +1,50 @@
-# .github/workflows/release.yml
-
-name: Publish VS Code Extension Release
+name: Build VSIX
 
 on:
-  # This workflow will run whenever you push a new tag to the repository.
-  # Tags are commonly used to mark version releases (e.g., v1.0.0, v1.0.1).
   push:
+    branches: [ main, master ]
     tags:
-      - 'v[0-9]+.[0-9]+.[0-9]+' # Matches tags like v1.0.0, v1.2.3, etc.
+      - 'v*'
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
-  publish:
-    # Use a modern operating system for the build
+  build:
     runs-on: ubuntu-latest
     
-    # Permissions are required to write the release assets
-    permissions:
-      contents: write
-      
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          # Fetch all history and tags to ensure vsce and the release step work correctly
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          # Use a stable, modern LTS version of Node.js (Node 20 or higher)
-          node-version: 20
-          
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Install vsce (Visual Studio Code Extension Manager)
-        run: npm install -g vsce
-
-      - name: Package Extension (.vsix)
-        # This command reads package.json and generates the VSIX file in the root directory.
-        # The file name will be based on your extension name and version.
-        run: vsce package
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
         
-      - name: Get Package Info
-        # Extract the package name and version to use in the release
-        id: package
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const packageJson = require('./package.json');
-            core.setOutput('name', packageJson.name);
-            core.setOutput('version', packageJson.version);
-
-      - name: Create GitHub Release
-        id: create_release
-        uses: softprops/action-gh-release@v1
-        with:
-          # The tag that triggered the workflow (e.g., v1.0.0)
-          tag_name: ${{ github.ref }}
-          # The title of the release is set to the tag name
-          name: Release ${{ github.ref }}
-          # The assets to upload (the VSIX file created by vsce)
-          files: |
-            ${{ steps.package.outputs.name }}-${{ steps.package.outputs.version }}.vsix
-            
-        env:
-          # The GITHUB_TOKEN is automatically provided by GitHub Actions
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: Install dependencies
+      run: npm ci
+      
+    - name: Install vsce
+      run: npm install -g @vscode/vsce
+      
+    - name: Package extension
+      run: vsce package
+      
+    - name: Upload VSIX artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: vsix-package
+        path: '*.vsix'
+        retention-days: 30
+        
+    - name: Create Release
+      if: startsWith(github.ref, 'refs/tags/v')
+      uses: softprops/action-gh-release@v1
+      with:
+        files: '*.vsix'
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
