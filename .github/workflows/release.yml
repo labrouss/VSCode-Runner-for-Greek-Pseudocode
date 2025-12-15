@@ -2,54 +2,142 @@ name: Build VSIX
 
 on:
   push:
-    branches: [ main, master ]
+    # Only trigger full build/release on main branch commits and tags
+    branches: [ main, master ] 
     tags:
       - 'v*'
   pull_request:
-    branches: [ main, master ]
+    # Only trigger build on PRs (skip asset download for PRs)
+    branches: [ main, master ] 
   workflow_dispatch:
 
+# The 'contents: write' permission is still needed for creating the release
 permissions:
-  contents: write  # Required for creating releases
+  contents: write 
 
 jobs:
+  # ----------------------------------------------------
+  # NEW JOB: 1. Download and commit the interpreter files
+  # This runs only when a release tag is pushed (v*.*.*)
+  # ----------------------------------------------------
+  prepare_assets:
+    name: Download Latest Interpreter Assets
+    runs-on: ubuntu-latest
+    # Only run this job when a release tag is pushed
+    if: startsWith(github.ref, 'refs/tags/v') 
+    
+    # We grant write permission here for the push back action (git-auto-commit-action)
+    permissions:
+      contents: write 
+
+    steps:
+      - name: ⬇️ Checkout code
+        uses: actions/checkout@v4
+        with:
+          # Fetch full history is required for auto-commit action
+          fetch-depth: 0 
+          
+      - name: Set target directory and ensure cleanup
+        id: config
+        run: |
+          echo "ASSET_DIR=src/bin" >> $GITHUB_OUTPUT 
+          rm -rf src/bin/* # Clean out old executables if they exist
+          mkdir -p src/bin
+
+      - name: 📥 Download Assets from Interpreter Repo (Repo A)
+        uses: robinraju/release-downloader@v1.9
+        with:
+          repository: 'labrouss/Python-Greek-Pseudocode-Interpreter' 
+          tag: 'latest' 
+          token: ${{ secrets.GH_PAT_DOWNLOADER }} # Requires a PAT secret with 'repo' scope
+          fileName: "interpreter-linux,interpreter-macos,interpreter.exe,interpreter.py" 
+          latest: true
+          dest: ${{ steps.config.outputs.ASSET_DIR }}
+
+      - name: 💾 Commit and Push Updated Files
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: 'Pre-Release Asset Update: Interpreter files for ${{ github.ref_name }}'
+          files: ${{ steps.config.outputs.ASSET_DIR }}
+          token: ${{ secrets.GH_PAT_DOWNLOADER }} 
+          # Pushing here updates the repository with the new assets *before* the next job runs.
+          
+  # ----------------------------------------------------
+  # EXISTING JOB: 2. Build the VSIX
+  # ----------------------------------------------------
   build:
     runs-on: ubuntu-latest
+    # IMPORTANT: Only start the build after assets are ready (if we're releasing)
+    # The build job will run immediately on branch commits/PRs, but will wait
+    # for the 'prepare_assets' job to finish on a tag push.
+    needs: [prepare_assets] 
+    
+    # We only want the build to continue if the commit to main from prepare_assets was successful.
+    # However, since the tag has been pushed, we are committed to the tag.
+    # We will rely on the implicit re-triggering mechanism or run it directly after downloading.
+    # For simplicity, let's keep it as one streamlined job for the tag path.
+    #
+    # --- Alternative, simpler approach: Don't commit, just download for THIS RUN ---
+    # Since you want the build to happen on the tag, committing the files and
+    # relying on a re-trigger is complex. The simpler path is to just download
+    # the files *into the runner* right before packaging, without committing them.
+    # This ensures the VSIX gets the right files without messing up Git history on the tag.
+    
+    # Reverting to a single, simpler job:
     
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20'
-        cache: 'npm'
+      - name: Checkout code
+        uses: actions/checkout@v4
         
-    - name: Install dependencies
-      run: npm ci
-      
-    - name: Compile TypeScript
-      run: npm run compile
-      
-    - name: Install vsce
-      run: npm install -g @vscode/vsce
-      
-    - name: Package extension
-      run: vsce package --allow-missing-repository
-      
-    - name: Upload VSIX artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: vsix-package
-        path: '*.vsix'
-        retention-days: 30
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: npm ci
         
-    - name: Create Release
-      if: startsWith(github.ref, 'refs/tags/v')
-      uses: softprops/action-gh-release@v2
-      with:
-        files: '*.vsix'
-        draft: false
-        prerelease: false
-        generate_release_notes: true
+      # --- NEW DOWNLOAD STEPS ---
+      - name: Set target directory
+        id: config_download
+        run: |
+          echo "ASSET_DIR=src/bin" >> $GITHUB_OUTPUT 
+          mkdir -p src/bin
+          
+      - name: 📥 Download Assets from Interpreter Repo (Repo A)
+        # This only downloads the files into the current runner environment
+        uses: robinraju/release-downloader@v1.9
+        with:
+          repository: '<OwnerName>/<RepoName>' 
+          tag: 'latest' 
+          token: ${{ secrets.GH_PAT_DOWNLOADER }} 
+          fileName: "interpreter-linux,interpreter-macos,interpreter.exe,interpreter.py" 
+          latest: true
+          dest: ${{ steps.config_download.outputs.ASSET_DIR }}
+      # --- END NEW DOWNLOAD STEPS ---
+        
+      - name: Compile TypeScript
+        run: npm run compile
+        
+      - name: Install vsce
+        run: npm install -g @vscode/vsce
+        
+      - name: Package extension (Now includes downloaded assets)
+        run: vsce package --allow-missing-repository
+        
+      - name: Upload VSIX artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vsix-package
+          path: '*.vsix'
+          retention-days: 30
+          
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: '*.vsix'
+          draft: false
+          prerelease: false
+          generate_release_notes: true
