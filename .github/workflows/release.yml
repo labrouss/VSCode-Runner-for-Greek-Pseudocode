@@ -35,7 +35,6 @@ jobs:
       - name: Create target directory and define base URL
         id: config_download
         run: |
-          # 🛑 FIX APPLIED HERE: Set ASSET_DIR to 'interpreter' to match VSIX structure
           echo "ASSET_DIR=interpreter" >> $GITHUB_OUTPUT 
           mkdir -p interpreter
           # Define the base URL for downloads
@@ -53,7 +52,7 @@ jobs:
           curl -sSL -o $ASSET_DIR/interpreter-macos $BASE_URL/interpreter-macos
 
           echo "Downloading interpreter.exe..."
-          curl -sSL -o $ASSET_DIR/interpreter-win.exe $BASE_URL/interpreter.exe
+          curl -sSL -o $ASSET_DIR/interpreter-win.exe $BASE_URL/interpreter-win.exe
 
           echo "Downloading interpreter.py..."
           curl -sSL -o $ASSET_DIR/interpreter.py $BASE_URL/interpreter.py
