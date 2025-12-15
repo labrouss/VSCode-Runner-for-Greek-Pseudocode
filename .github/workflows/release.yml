@@ -9,6 +9,9 @@ on:
     branches: [ main, master ]
   workflow_dispatch:
 
+permissions:
+  contents: write  # Required for creating releases
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,19 +32,6 @@ jobs:
     - name: Compile TypeScript
       run: npm run compile
       
-    - name: List compiled files (debug)
-      run: |
-        echo "Checking compiled output..."
-        ls -la
-        if [ -d "out" ]; then
-          echo "Contents of out directory:"
-          ls -la out/
-        fi
-        if [ -d "extension/out" ]; then
-          echo "Contents of extension/out directory:"
-          ls -la extension/out/
-        fi
-      
     - name: Install vsce
       run: npm install -g @vscode/vsce
       
@@ -57,10 +47,9 @@ jobs:
         
     - name: Create Release
       if: startsWith(github.ref, 'refs/tags/v')
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         files: '*.vsix'
         draft: false
         prerelease: false
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        generate_release_notes: true
