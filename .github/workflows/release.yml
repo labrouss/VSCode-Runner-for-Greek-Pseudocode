@@ -30,24 +30,36 @@ jobs:
         run: npm ci
         
       # ------------------------------------------------------------------
-      # INSERT ASSET DOWNLOAD STEPS
+      # DIRECT DOWNLOAD STEPS using curl
       # ------------------------------------------------------------------
-      - name: Set target directory for executables
+      - name: Create target directory and define base URL
         id: config_download
         run: |
           echo "ASSET_DIR=src/bin" >> $GITHUB_OUTPUT 
-          # Create the directory where the assets will be placed
           mkdir -p src/bin
+          # Define the base URL for downloads
+          echo "BASE_URL=https://github.com/labrouss/Python-Greek-Pseudocode-Interpreter/releases/latest/download" >> $GITHUB_OUTPUT
+
+      - name: Download all assets via direct URL
+        run: |
+          ASSET_DIR=${{ steps.config_download.outputs.ASSET_DIR }}
+          BASE_URL=${{ steps.config_download.outputs.BASE_URL }}
+
+          echo "Downloading interpreter-linux..."
+          curl -sSL -o $ASSET_DIR/interpreter-linux $BASE_URL/interpreter-linux
+
+          echo "Downloading interpreter-macos..."
+          curl -sSL -o $ASSET_DIR/interpreter-macos $BASE_URL/interpreter-macos
+
+          echo "Downloading interpreter.exe..."
+          curl -sSL -o $ASSET_DIR/interpreter.exe $BASE_URL/interpreter.exe
+
+          echo "Downloading interpreter.py..."
+          curl -sSL -o $ASSET_DIR/interpreter.py $BASE_URL/interpreter.py
           
-      - name: Download Interpreter Assets
-        uses: robinraju/release-downloader@v1.9
-        with:
-          repository: 'labrouss/Python-Greek-Pseudocode-Interpreter' 
-          tag: 'latest' 
-          out-file-path: ${{ steps.config_download.outputs.ASSET_DIR }} 
-          token: ${{ secrets.GH_PAT_DOWNLOADER }} 
-          fileName: "interpreter-linux,interpreter-macos,interpreter.exe,interpreter.py" 
-          preRelease: true
+          echo "Verification:"
+          ls -l $ASSET_DIR
+          
       # ------------------------------------------------------------------
       
       - name: Compile TypeScript
@@ -56,7 +68,7 @@ jobs:
       - name: Install vsce
         run: npm install -g @vscode/vsce
         
-      - name: Package extension
+      - name: Package extension (Now includes downloaded assets in src/bin)
         run: vsce package --allow-missing-repository
         
       - name: Upload VSIX artifact
@@ -74,4 +86,3 @@ jobs:
           draft: false
           prerelease: false
           generate_release_notes: true
-
