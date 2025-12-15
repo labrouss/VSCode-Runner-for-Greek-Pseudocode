@@ -44,11 +44,10 @@ jobs:
         with:
           repository: 'labrouss/Python-Greek-Pseudocode-Interpreter' 
           tag: 'latest' 
-          # FIX: Use 'out-file-path' instead of 'destination'
           out-file-path: ${{ steps.config_download.outputs.ASSET_DIR }} 
-          # Ensure this token is valid and has 'repo' scope
           token: ${{ secrets.GH_PAT_DOWNLOADER }} 
           fileName: "interpreter-linux,interpreter-macos,interpreter.exe,interpreter.py" 
+          preRelease: true
       # ------------------------------------------------------------------
       
       - name: Compile TypeScript
