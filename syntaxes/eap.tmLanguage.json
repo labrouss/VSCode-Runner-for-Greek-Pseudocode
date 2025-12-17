@@ -14,16 +14,11 @@
       "name": "string.quoted.double.eap",
       "begin": "\"",
       "end": "\"",
-      "patterns": [
-        {
-          "name": "constant.character.escape.eap",
-          "match": "\\\\."
-        }
-      ]
+      "patterns": [{ "name": "constant.character.escape.eap", "match": "\\\\." }]
     },
     {
-     "name": "keyword.control.eap",
-     "match": "(?<![\\w\\d\\x7f-\\xff])(ΑΛΓΟΡΙΘΜΟΣ|ΣΤΑΘΕΡΕΣ|ΔΕΔΟΜΕΝΑ|ΑΡΧΗ|ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ|ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ|ΤΕΛΟΣ|ΕΑΝ|ΤΟΤΕ|ΑΛΛΙΩΣ|ΕΑΝ-ΤΕΛΟΣ|ΓΙΑ|ΑΠΟ|ΕΩΣ|ΜΕ|ΒΗΜΑ|ΜΕ-ΒΗΜΑ|ΕΠΑΝΑΛΑΒΕ|ΓΙΑ-ΤΕΛΟΣ|ΕΝΟΣΩ|ΕΝΟΣΩ-ΤΕΛΟΣ|ΜΕΧΡΙ|PRINT|READ|FUNCTION|PROCEDURE|BEGIN|END)(?![\\w\\d\\x7f-\\xff])"
+      "name": "keyword.control.eap",
+      "match": "(?<![\\w\\d\\x7f-\\xff])(ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ|ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ|ΕΑΝ-ΤΕΛΟΣ|ΓΙΑ-ΤΕΛΟΣ|ΕΝΟΣΩ-ΤΕΛΟΣ|ΜΕ-ΒΗΜΑ|ΑΛΓΟΡΙΘΜΟΣ|ΣΤΑΘΕΡΕΣ|ΔΕΔΟΜΕΝΑ|ΑΡΧΗ|ΤΕΛΟΣ|ΕΑΝ|ΤΟΤΕ|ΑΛΛΙΩΣ|ΓΙΑ|ΑΠΟ|ΕΩΣ|ΜΕ|ΒΗΜΑ|ΕΠΑΝΑΛΑΒΕ|ΕΝΟΣΩ|ΜΕΧΡΙ|ΔΙΑΔΙΚΑΣΙΑ|ΣΥΝΑΡΤΗΣΗ|PRINT|READ|FUNCTION|PROCEDURE|BEGIN|END)(?![\\w\\d\\x7f-\\xff])"
     },
     {
       "name": "keyword.other.commands.eap",
