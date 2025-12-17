@@ -1,8 +1,9 @@
 {
-  "name": "eap-greek-pseudocode-interpreter",
-  "displayName": "EAP Runner for Greek Pseudocode",
-  "description": "EAP Greek Pseudocode language support",
+  "name": "greek-pseudorun",
+  "displayName": "Greek PseudoRun",
+  "description": "Interpreter and language support for Greek Pseudocode (Ψευδοκώδικας) in VS Code. Execute, debug, and learn algorithms with real-time feedback.",
   "version": "1.0.0",
+  "icon": "./icons/Greek-PseudoRun.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/labrouss/VSCode-Runner-for-Greek-Pseudocode.git"
@@ -16,8 +17,19 @@
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Programming Languages"
+    "Programming Languages",
+    "Education",
+    "Snippets"
   ],
+  "keywords": [
+        "greek",
+        "pseudocode",
+        "interpreter",
+        "education",
+        "language",
+        "gpc",
+        "Ψευδοκώδικας"
+    ],
   "activationEvents": [
     "onLanguage:eap",
     "onCommand:eap.run"
@@ -29,10 +41,14 @@
         "id": "eap",
         "aliases": [
           "EAP",
-          "Pseudocode"
+          "Pseudocode",
+          "Greek Pseudocode",
+          "Ψευδοκώδικας"
         ],
         "extensions": [
-          ".eap"
+          ".eap",
+          ".gpc",
+          ".ps"
         ],
         "configuration": "./language-configuration.json"
       }
@@ -47,9 +63,26 @@
     "commands": [
       {
         "command": "eap.run",
-        "title": "Run EAP Program"
-      }
-    ]
+        "title": "Run EAP Program",
+        "icon": "$(play)"
+    }
+        ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "eap.run",
+          "group": "navigation",
+          "when": "resourceLangId == eap"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "eap.run",
+          "group": "navigation",
+          "when": "resourceLangId == eap"
+        }
+      ]
+    }
   },
   "scripts": {
     "compile": "tsc -p ./",
