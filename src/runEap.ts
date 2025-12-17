@@ -12,12 +12,15 @@ function commandExists(cmd: string): boolean {
   return result.status === 0;
 }
 
-export function runEapProgram(context: vscode.ExtensionContext) {
+export async function runEapProgram(context: vscode.ExtensionContext) {
   const editor = vscode.window.activeTextEditor;
   if (!editor) {
-    vscode.window.showErrorMessage("No active editor.");
+    vscode.window.showErrorMessage("Greek PseudoRun: No active editor found.");
     return;
   }
+  if (editor.document.isDirty) {
+        await editor.document.save();
+  }
 
   const filePath = editor.document.fileName;
   const extPath = context.extensionPath;

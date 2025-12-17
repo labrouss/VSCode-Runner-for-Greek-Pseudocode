@@ -2,7 +2,7 @@
   "name": "greek-pseudorun",
   "displayName": "Greek PseudoRun",
   "description": "Interpreter and language support for Greek Pseudocode (Ψευδοκώδικας) in VS Code. Execute, debug, and learn algorithms with real-time feedback.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "icon": "./icons/Greek-PseudoRun.png",
   "repository": {
     "type": "git",
@@ -22,14 +22,14 @@
     "Snippets"
   ],
   "keywords": [
-        "greek",
-        "pseudocode",
-        "interpreter",
-        "education",
-        "language",
-        "gpc",
-        "Ψευδοκώδικας"
-    ],
+    "greek",
+    "pseudocode",
+    "interpreter",
+    "education",
+    "language",
+    "gpc",
+    "Ψευδοκώδικας"
+  ],
   "activationEvents": [
     "onLanguage:eap",
     "onCommand:eap.run"
@@ -60,13 +60,19 @@
         "path": "./syntaxes/eap.tmLanguage.json"
       }
     ],
+    "snippets": [
+      {
+        "language": "eap",
+        "path": "./snippets.json"
+      }
+    ],
     "commands": [
       {
         "command": "eap.run",
         "title": "Run EAP Program",
         "icon": "$(play)"
-    }
-        ],
+      }
+    ],
     "menus": {
       "editor/title": [
         {

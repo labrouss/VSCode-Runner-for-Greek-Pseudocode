@@ -5,18 +5,39 @@
   },
   "brackets": [
     ["(", ")"],
-    ["[", "]"]
+    ["[", "]"],
+    ["{", "}"]
+  ],
+  "autoClosingPairs": [
+    { "open": "(", "close": ")" },
+    { "open": "[", "close": "]" },
+    { "open": "{", "close": "}" },
+    { "open": "\"", "close": "\"", "notIn": ["string"] },
+    { "open": "'", "close": "'", "notIn": ["string", "comment"] }
+  ],
+  "surroundingPairs": [
+    ["(", ")"],
+    ["[", "]"],
+    ["{", "}"],
+    ["\"", "\""],
+    ["'", "'"]
   ],
   "autoIndent": "advanced",
   "onEnterRules": [
     {
-      "beforeText": ".*(ΑΡΧΗ|ΤΟΤΕ|ΕΠΑΝΑΛΑΒΕ|BEGIN|THEN|REPEAT)$",
-      "action": { "indentAction": "Indent" }
+      "beforeText": "^\\s*(ΑΛΓΟΡΙΘΜΟΣ|ΑΡΧΗ|ΤΟΤΕ|ΕΠΑΝΑΛΑΒΕ|ΕΠΑΝΑΛΗΨΗ|ΔΙΑΔΙΚΑΣΙΑ|ΣΥΝΑΡΤΗΣΗ|ΕΝΟΣΩ|ΓΙΑ).*$",
+      "action": { "indentAction": "indent" }
     },
     {
-      "beforeText": "^\\s*(ΤΕΛΟΣ|ΕΑΝ-ΤΕΛΟΣ|ΓΙΑ-ΤΕΛΟΣ|END).*",
-      "action": { "indentAction": "Outdent" }
+      "beforeText": "^\\s*(ΑΡΧΗ|ΔΙΑΔΙΚΑΣΙΑ|ΣΥΝΑΡΤΗΣΗ|ΓΙΑ|ΕΝΟΣΩ).*$",
+      "afterText": "^\\s*(ΤΕΛΟΣ|ΓΙΑ-ΤΕΛΟΣ|ΕΑΝ-ΤΕΛΟΣ|ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ|ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ|END).*$",
+      "action": { "indentAction": "indentOutdent" }
+    },
+    {
+      /* Rule: Outdent when typing the closing tag.
+      */
+      "beforeText": "^\\s*(ΤΕΛΟΣ|ΕΑΝ-ΤΕΛΟΣ|ΓΙΑ-ΤΕΛΟΣ|END|ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ|ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ).*$",
+      "action": { "indentAction": "outdent" }
     }
   ]
 }
-
