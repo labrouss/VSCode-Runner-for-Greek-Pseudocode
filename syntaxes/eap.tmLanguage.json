@@ -25,6 +25,10 @@
       "match": "\\b(ΤΥΠΩΣΕ|ΔΙΑΒΑΣΕ|ΥΠΟΛΟΓΙΣΕ)\\b"
     },
     {
+      "name": "keyword.type.eap",
+      "match": "(?<![\\w\\d\\x7f-\\xff])(INTEGER|REAL|STRING|BOOLEAN|ΑΚΕΡΑΙΑ|ΠΡΑΓΜΑΤΙΚΗ|ΛΟΓΙΚΗ|ΧΑΡΑΚΤΗΡΑΣ)(?![\\w\\d\\x7f-\\xff])"
+    },
+    {
       "name": "constant.numeric.eap",
       "match": "\\b\\d+(\\.\\d+)?\\b"
     },
@@ -35,6 +39,10 @@
     {
       "name": "punctuation.section.parens.eap",
       "match": "\\(|\\)"
+    },
+    {
+      "name": "punctuation.separator.key-value.eap",
+      "match": ":"
     },
     {
       "name": "variable.other.eap",
