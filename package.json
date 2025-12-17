@@ -39,6 +39,10 @@
     "languages": [
       {
         "id": "eap",
+        "icon": {
+	"light": "./icons/Greek-PseudoRun.png",
+        "dark": "./icons/Greek-PseudoRun.png"
+        },
         "aliases": [
           "EAP",
           "Pseudocode",
