@@ -2,7 +2,7 @@
   "name": "greek-pseudorun",
   "displayName": "Greek PseudoRun",
   "description": "Interpreter and language support for Greek Pseudocode (Ψευδοκώδικας) in VS Code. Execute, debug, and learn algorithms with real-time feedback.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "icon": "./icons/Greek-PseudoRun.png",
   "repository": {
     "type": "git",
