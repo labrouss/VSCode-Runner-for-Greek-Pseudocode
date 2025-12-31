@@ -1,11 +1,16 @@
 import * as vscode from "vscode";
 import { registerAutocomplete } from "./autocomplete";
+import { registerFormatter, registerRangeFormatter } from "./formatter";
 import { runEapProgram } from "./runEap";
 
 let myStatusBarItem: vscode.StatusBarItem;
 
 export function activate(context: vscode.ExtensionContext) {
     registerAutocomplete(context);
+
+    // Register the document formatter
+    registerFormatter(context);
+    registerRangeFormatter(context);
 
     // Register Run Command
     context.subscriptions.push(
