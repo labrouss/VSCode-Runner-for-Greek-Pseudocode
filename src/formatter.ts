@@ -1,19 +1,34 @@
 import * as vscode from "vscode";
 
-// Keywords that increase indentation
-const INDENT_INCREASE_KEYWORDS = [
-    'ΑΛΓΟΡΙΘΜΟΣ', 'ΑΡΧΗ', 'ΤΟΤΕ', 'ΑΛΛΙΩΣ', 'ΕΠΑΝΑΛΑΒΕ', 
-    'ΕΠΑΝΑΛΗΨΗ', 'ΔΙΑΔΙΚΑΣΙΑ', 'ΣΥΝΑΡΤΗΣΗ', 'ΕΝΟΣΩ', 'ΓΙΑ'
+// Keywords that increase indentation on the SAME line (block starts)
+const INDENT_INCREASE_SAME_LINE = [
+    'ΕΠΑΝΑΛΑΒΕ'  // ΓΙΑ/ΕΝΟΣΩ ... ΕΠΑΝΑΛΑΒΕ
+];
+
+// Keywords that increase indentation for NEXT line
+const INDENT_INCREASE_NEXT_LINE = [
+    'ΑΡΧΗ', 'ΤΟΤΕ', 'ΑΛΛΙΩΣ'
 ];
 
 // Keywords that decrease indentation (closing keywords)
 const INDENT_DECREASE_KEYWORDS = [
     'ΤΕΛΟΣ', 'ΕΑΝ-ΤΕΛΟΣ', 'ΓΙΑ-ΤΕΛΟΣ', 'ΕΝΟΣΩ-ΤΕΛΟΣ', 
-    'ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ', 'ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ', 'END', 'ΑΛΛΙΩΣ'
+    'ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ', 'ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ', 'ΑΛΛΙΩΣ'
 ];
 
-// Keywords that are both (decrease then increase)
-const INDENT_BOTH_KEYWORDS = ['ΑΛΛΙΩΣ'];
+function getLineKeywords(trimmedLine: string): { 
+    hasIncreaseNextLine: boolean;
+    hasIncreaseSameLine: boolean;
+    hasDecrease: boolean;
+} {
+    const upperLine = trimmedLine.toUpperCase();
+    
+    return {
+        hasIncreaseNextLine: INDENT_INCREASE_NEXT_LINE.some(kw => upperLine.startsWith(kw)),
+        hasIncreaseSameLine: INDENT_INCREASE_SAME_LINE.some(kw => upperLine.includes(kw)),
+        hasDecrease: INDENT_DECREASE_KEYWORDS.some(kw => upperLine.startsWith(kw))
+    };
+}
 
 export function registerFormatter(context: vscode.ExtensionContext) {
     const formatter = vscode.languages.registerDocumentFormattingEditProvider('eap', {
@@ -32,17 +47,14 @@ export function registerFormatter(context: vscode.ExtensionContext) {
                     continue;
                 }
                 
-                // Check if this line should decrease indent before formatting
-                const shouldDecreaseBeforeFormat = INDENT_DECREASE_KEYWORDS.some(keyword => 
-                    trimmedText.startsWith(keyword)
-                );
+                const keywords = getLineKeywords(trimmedText);
                 
-                // Apply decrease before this line
-                if (shouldDecreaseBeforeFormat && indentLevel > 0) {
+                // Decrease indent BEFORE formatting this line if it's a closing keyword
+                if (keywords.hasDecrease && indentLevel > 0) {
                     indentLevel--;
                 }
                 
-                // Calculate the correct indentation
+                // Calculate the correct indentation for THIS line
                 const correctIndent = insertSpaces 
                     ? ' '.repeat(indentLevel * tabSize)
                     : '\t'.repeat(indentLevel);
@@ -59,18 +71,11 @@ export function registerFormatter(context: vscode.ExtensionContext) {
                     edits.push(vscode.TextEdit.replace(range, correctIndent));
                 }
                 
-                // Check if this line should increase indent for next line
-                const shouldIncreaseAfterFormat = INDENT_INCREASE_KEYWORDS.some(keyword => 
-                    trimmedText.startsWith(keyword)
-                );
-                
-                if (shouldIncreaseAfterFormat) {
+                // Increase indent for NEXT line if needed
+                // Priority: same-line keywords (ΕΠΑΝΑΛΑΒΕ) > next-line keywords (ΑΡΧΗ, ΤΟΤΕ)
+                if (keywords.hasIncreaseSameLine) {
                     indentLevel++;
-                }
-                
-                // Handle ΑΛΛΙΩΣ (decrease then increase)
-                if (INDENT_BOTH_KEYWORDS.some(keyword => trimmedText.startsWith(keyword)) 
-                    && !shouldDecreaseBeforeFormat) {
+                } else if (keywords.hasIncreaseNextLine) {
                     indentLevel++;
                 }
             }
@@ -92,19 +97,20 @@ export function registerRangeFormatter(context: vscode.ExtensionContext) {
             const tabSize = vscode.workspace.getConfiguration('editor').get<number>('tabSize') || 4;
             const insertSpaces = vscode.workspace.getConfiguration('editor').get<boolean>('insertSpaces') ?? true;
             
-            // Calculate initial indent level by scanning from start of document
+            // Calculate initial indent level by scanning from start of document to range start
             let indentLevel = 0;
             for (let i = 0; i < range.start.line; i++) {
                 const line = document.lineAt(i);
                 const trimmedText = line.text.trim();
+                const keywords = getLineKeywords(trimmedText);
                 
-                const decreases = INDENT_DECREASE_KEYWORDS.some(kw => trimmedText.startsWith(kw));
-                const increases = INDENT_INCREASE_KEYWORDS.some(kw => trimmedText.startsWith(kw));
-                
-                if (decreases && indentLevel > 0) {
+                if (keywords.hasDecrease && indentLevel > 0) {
                     indentLevel--;
                 }
-                if (increases) {
+                
+                if (keywords.hasIncreaseSameLine) {
+                    indentLevel++;
+                } else if (keywords.hasIncreaseNextLine) {
                     indentLevel++;
                 }
             }
@@ -118,11 +124,9 @@ export function registerRangeFormatter(context: vscode.ExtensionContext) {
                     continue;
                 }
                 
-                const shouldDecreaseBeforeFormat = INDENT_DECREASE_KEYWORDS.some(keyword => 
-                    trimmedText.startsWith(keyword)
-                );
+                const keywords = getLineKeywords(trimmedText);
                 
-                if (shouldDecreaseBeforeFormat && indentLevel > 0) {
+                if (keywords.hasDecrease && indentLevel > 0) {
                     indentLevel--;
                 }
                 
@@ -140,16 +144,9 @@ export function registerRangeFormatter(context: vscode.ExtensionContext) {
                     edits.push(vscode.TextEdit.replace(editRange, correctIndent));
                 }
                 
-                const shouldIncreaseAfterFormat = INDENT_INCREASE_KEYWORDS.some(keyword => 
-                    trimmedText.startsWith(keyword)
-                );
-                
-                if (shouldIncreaseAfterFormat) {
+                if (keywords.hasIncreaseSameLine) {
                     indentLevel++;
-                }
-                
-                if (INDENT_BOTH_KEYWORDS.some(keyword => trimmedText.startsWith(keyword)) 
-                    && !shouldDecreaseBeforeFormat) {
+                } else if (keywords.hasIncreaseNextLine) {
                     indentLevel++;
                 }
             }
