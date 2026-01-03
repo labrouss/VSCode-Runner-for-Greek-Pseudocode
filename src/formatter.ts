@@ -1,32 +1,40 @@
 import * as vscode from "vscode";
 
-// Keywords that increase indentation on the SAME line (block starts)
-const INDENT_INCREASE_SAME_LINE = [
-    'ΕΠΑΝΑΛΑΒΕ'  // ΓΙΑ/ΕΝΟΣΩ ... ΕΠΑΝΑΛΑΒΕ
-];
-
 // Keywords that increase indentation for NEXT line
 const INDENT_INCREASE_NEXT_LINE = [
-    'ΑΡΧΗ', 'ΤΟΤΕ', 'ΑΛΛΙΩΣ'
+    'ΑΡΧΗ', 'ΤΟΤΕ', 'ΑΛΛΙΩΣ', 'ΕΠΑΝΑΛΑΒΕ'
 ];
 
 // Keywords that decrease indentation (closing keywords)
 const INDENT_DECREASE_KEYWORDS = [
     'ΤΕΛΟΣ', 'ΕΑΝ-ΤΕΛΟΣ', 'ΓΙΑ-ΤΕΛΟΣ', 'ΕΝΟΣΩ-ΤΕΛΟΣ', 
-    'ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ', 'ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ', 'ΑΛΛΙΩΣ'
+    'ΤΕΛΟΣ-ΔΙΑΔΙΚΑΣΙΑΣ', 'ΤΕΛΟΣ-ΣΥΝΑΡΤΗΣΗΣ', 'ΑΛΛΙΩΣ', 'ΜΕΧΡΙ'
 ];
 
-function getLineKeywords(trimmedLine: string): { 
+// Keywords that have special handling (start of line with block)
+const LOOP_WITH_BLOCK_KEYWORDS = [
+    'ΓΙΑ', 'ΕΝΟΣΩ'
+];
+
+function analyzeLine(trimmedLine: string): { 
     hasIncreaseNextLine: boolean;
-    hasIncreaseSameLine: boolean;
     hasDecrease: boolean;
+    isLoopWithBlock: boolean;
 } {
     const upperLine = trimmedLine.toUpperCase();
     
+    // Check if it's a ΓΙΑ or ΕΝΟΣΩ line that contains ΕΠΑΝΑΛΑΒΕ
+    const isLoopWithBlock = LOOP_WITH_BLOCK_KEYWORDS.some(kw => upperLine.startsWith(kw)) 
+                            && upperLine.includes('ΕΠΑΝΑΛΑΒΕ');
+    
+    // ΕΠΑΝΑΛΑΒΕ on its own line (not part of ΓΙΑ/ΕΝΟΣΩ) increases next line
+    const standaloneEpanalabe = upperLine.startsWith('ΕΠΑΝΑΛΑΒΕ') 
+                                && !LOOP_WITH_BLOCK_KEYWORDS.some(kw => upperLine.includes(kw));
+    
     return {
-        hasIncreaseNextLine: INDENT_INCREASE_NEXT_LINE.some(kw => upperLine.startsWith(kw)),
-        hasIncreaseSameLine: INDENT_INCREASE_SAME_LINE.some(kw => upperLine.includes(kw)),
-        hasDecrease: INDENT_DECREASE_KEYWORDS.some(kw => upperLine.startsWith(kw))
+        hasIncreaseNextLine: INDENT_INCREASE_NEXT_LINE.some(kw => upperLine.startsWith(kw)) || standaloneEpanalabe,
+        hasDecrease: INDENT_DECREASE_KEYWORDS.some(kw => upperLine.startsWith(kw)),
+        isLoopWithBlock: isLoopWithBlock
     };
 }
 
@@ -47,10 +55,10 @@ export function registerFormatter(context: vscode.ExtensionContext) {
                     continue;
                 }
                 
-                const keywords = getLineKeywords(trimmedText);
+                const analysis = analyzeLine(trimmedText);
                 
                 // Decrease indent BEFORE formatting this line if it's a closing keyword
-                if (keywords.hasDecrease && indentLevel > 0) {
+                if (analysis.hasDecrease && indentLevel > 0) {
                     indentLevel--;
                 }
                 
@@ -72,10 +80,11 @@ export function registerFormatter(context: vscode.ExtensionContext) {
                 }
                 
                 // Increase indent for NEXT line if needed
-                // Priority: same-line keywords (ΕΠΑΝΑΛΑΒΕ) > next-line keywords (ΑΡΧΗ, ΤΟΤΕ)
-                if (keywords.hasIncreaseSameLine) {
+                if (analysis.isLoopWithBlock) {
+                    // ΓΙΑ...ΕΠΑΝΑΛΑΒΕ or ΕΝΟΣΩ...ΕΠΑΝΑΛΑΒΕ increases indent
                     indentLevel++;
-                } else if (keywords.hasIncreaseNextLine) {
+                } else if (analysis.hasIncreaseNextLine) {
+                    // ΑΡΧΗ, ΤΟΤΕ, ΑΛΛΙΩΣ, or standalone ΕΠΑΝΑΛΑΒΕ
                     indentLevel++;
                 }
             }
@@ -102,15 +111,15 @@ export function registerRangeFormatter(context: vscode.ExtensionContext) {
             for (let i = 0; i < range.start.line; i++) {
                 const line = document.lineAt(i);
                 const trimmedText = line.text.trim();
-                const keywords = getLineKeywords(trimmedText);
+                const analysis = analyzeLine(trimmedText);
                 
-                if (keywords.hasDecrease && indentLevel > 0) {
+                if (analysis.hasDecrease && indentLevel > 0) {
                     indentLevel--;
                 }
                 
-                if (keywords.hasIncreaseSameLine) {
+                if (analysis.isLoopWithBlock) {
                     indentLevel++;
-                } else if (keywords.hasIncreaseNextLine) {
+                } else if (analysis.hasIncreaseNextLine) {
                     indentLevel++;
                 }
             }
@@ -124,9 +133,9 @@ export function registerRangeFormatter(context: vscode.ExtensionContext) {
                     continue;
                 }
                 
-                const keywords = getLineKeywords(trimmedText);
+                const analysis = analyzeLine(trimmedText);
                 
-                if (keywords.hasDecrease && indentLevel > 0) {
+                if (analysis.hasDecrease && indentLevel > 0) {
                     indentLevel--;
                 }
                 
@@ -144,9 +153,9 @@ export function registerRangeFormatter(context: vscode.ExtensionContext) {
                     edits.push(vscode.TextEdit.replace(editRange, correctIndent));
                 }
                 
-                if (keywords.hasIncreaseSameLine) {
+                if (analysis.isLoopWithBlock) {
                     indentLevel++;
-                } else if (keywords.hasIncreaseNextLine) {
+                } else if (analysis.hasIncreaseNextLine) {
                     indentLevel++;
                 }
             }
